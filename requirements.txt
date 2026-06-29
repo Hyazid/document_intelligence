@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+asyncpg
+pydantic-settings
+httpx
+pymupdf
+langchain-text-splitters
+langfuse
+openai
+ragas
+
+
