@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What is this document about?",
+    "ground_truth": "A Python programming fundamentals exam with 60 multiple choice questions."
+  },
+  {
+    "question": "How many questions does the exam have?",
+    "ground_truth": "60 questions."
+  },
+  {
+    "question": "What type of questions are in the exam?",
+    "ground_truth": "Multiple choice questions (QCM)."
+  },
+  {
+    "question": "What does input() always return in Python?",
+    "ground_truth": "input() always returns a str regardless of what the user types."
+  },
+  {
+    "question": "What is the correct syntax to test if x equals 10 in Python?",
+    "ground_truth": "if x == 10:"
+  }
+]

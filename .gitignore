@@ -3,7 +3,6 @@
 venv/
 env/
 ENV/
-.env
 
 # Python
 __pycache__/
@@ -51,6 +50,20 @@ htmlcov/
 # Logs
 *.log
 
-# Environment files
+# Environment files — KEEP .env.example, ignore everything else
+.env
 .env.local
 .env.*.local
+
+# Docker
+docker-compose.override.yml
+
+# Eval results — don't commit raw results, only golden dataset
+evals/results.json
+evals/results.csv
+
+# Project specific
+pgdata/                  # if postgres data ever leaks to project folder
+*.pdf                    # don't commit test documents
+*.txt                    # unless intentional
+uploads/                 # if you add a local upload folder later

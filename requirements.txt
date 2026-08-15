@@ -9,5 +9,7 @@ langchain-text-splitters
 langfuse
 openai
 ragas
+pgvector
+python-multipart
 
 

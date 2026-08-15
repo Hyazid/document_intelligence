@@ -1,40 +1,27 @@
--- Initialize pgvector extension
 CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";     -- provides uuid_generate_v4()
 
--- Create documents table
 CREATE TABLE IF NOT EXISTS documents (
-    id UUID PRIMARY KEY gen_random_uuid(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),   -- DEFAULT was missing
     filename VARCHAR(255) NOT NULL,
-    
-    file_path VARCHAR(500),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create document chunks table
-CREATE TABLE IF NOT EXISTS document_chunks (
-    id UUID PRIMARY KEY gen_random_uuid(),
+CREATE TABLE IF NOT EXISTS chunks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     document_id UUID REFERENCES documents(id) ON DELETE CASCADE,
-    chunk_text TEXT NOT NULL,
-    chunk_index INTEGER,
-    embedding vector(1536),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    content TEXT NOT NULL,
+    embedding vector(768),
+    chunk_index INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- HNSW index for fast vector search
+CREATE INDEX IF NOT EXISTS chunks_embedding_idx
+ON chunks USING hnsw (embedding vector_cosine_ops);
 
--- Create indexes
-CREATE INDEX idx_documents_filename ON documents(filename);
-CREATE INDEX idx_document_chunks_document_id ON document_chunks(document_id);
-CREATE INDEX idx_document_chunks_embedding ON document_chunks USING ivfflat (embedding vector_cosine_ops);
+-- Full-text search index
+ALTER TABLE chunks ADD COLUMN IF NOT EXISTS tsv tsvector
+    GENERATED ALWAYS AS (to_tsvector('english', content)) STORED;
 
--- Create queries table
-CREATE TABLE IF NOT EXISTS queries (
-    id UUID PRIMARY KEY gen_random_uuid(),
-    query_text TEXT NOT NULL,
-    results TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create indexes for queries
-CREATE INDEX idx_queries_created_at ON queries(created_at);
-
+CREATE INDEX IF NOT EXISTS chunks_tsv_idx ON chunks USING gin(tsv);

@@ -1,9 +1,12 @@
 from openai import AsyncOpenAI
 from app.config import settings
-import json
+from app.services.tracer import get_langfuse
+import json, time
 client = AsyncOpenAI(base_url=settings.lm_studio_url, api_key=settings.lm_studio_api_key)
 
 async def generate_stream(prompt:str):
+    
+    
     stream  = await client.chat.completions.create(
         model = settings.llm_model,
         messages = [
@@ -14,8 +17,13 @@ async def generate_stream(prompt:str):
         max_tokens = settings.llm_max_tokens,
         stream = True
     )
-
+    
     async for chunk in stream:
-        delta = chunk.choices[0].delta.content
-        if delta:
-            yield delta
+        if not chunk.choices:
+            continue
+        delta = chunk.choices[0].delta
+        # delta.content can be None on first/last chunk
+        if delta and delta.content is not None:
+            
+            yield delta.content
+    

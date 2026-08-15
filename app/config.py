@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from wrapt import lru_cache
 
 class Settings(BaseSettings):
     database_url:str 
@@ -19,10 +20,20 @@ class Settings(BaseSettings):
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""
     langfuse_host: str = "https://cloud.langfuse.com"
+    model_config = {
+            "env_file": ".env",
+            "extra": "ignore"       # ← silently ignores unknown .env keys
+    }
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    
+    
 
-settings = Settings()
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+settings = get_settings()
+
+
+
     
